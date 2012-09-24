@@ -20,7 +20,7 @@ under the License.
 """
 Updates the subproject path of the CordovaLib entry to point to this script's version of Cordova.
 
-Usage: CordovaVersion/bin/update_cordova_project path/to/your/app.xcodeproj
+Usage: CordovaVersion/bin/update_cordova_project path/to/your/app.xcodeproj [path/to/CordovaLib.xcodeproj]
 """
 
 import fileinput
@@ -39,7 +39,7 @@ def AbsFrameworkPath(argv0):
   script_path = argv0
   # This can happen if the script's dir is in the user's PATH
   if not os.path.exists(script_path):
-    raise Exception('Could not locale framework directory.')
+    raise Exception('Could not locate framework directory.')
   return AbsParentPath(AbsParentPath(script_path))
 
 def AbsProjectPath(relative_path):
@@ -54,10 +54,17 @@ def AbsProjectPath(relative_path):
   return project_path
 
 def main(argv):
-  if len(argv) != 2:
+
+  if len(argv) < 2 or len(argv) > 3:
     Usage()
 
-  framework_path = AbsFrameworkPath(argv[0])
+  if len(argv) == 3:
+    if not os.path.exists(argv[2]):
+      raise Exception('Could not locate framework directory.')
+    framework_path = AbsParentPath(AbsParentPath(argv[2]))
+  else:
+    framework_path = AbsFrameworkPath(argv[0])
+
   project_path = AbsProjectPath(argv[1])
 
   parent_project_path = AbsParentPath(project_path)
